@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Worm-GPT UI - Glow Cyan + Smooth Zoom Pan</title>
+<title>Pterodactyl PrtdFX69</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:system-ui,-apple-system,sans-serif;background:radial-gradient(circle at top,#003a3a,#000 45%);color:#fff;}
@@ -143,12 +144,78 @@ body{margin:0;font-family:system-ui,-apple-system,sans-serif;background:radial-g
   background:linear-gradient(90deg,transparent,#00ffff,transparent);
   margin:14px 0;
 }
+.card.hero{
+  position: relative;
+  background:
+    linear-gradient(
+      rgba(0,120,120,0.75),
+      rgba(0,0,0,0.92)
+    ),
+    url("https://raw.githubusercontent.com/PretyFX69/music-files2/refs/heads/main/Pterodactyl.webp");
+  background-size: cover;
+  background-position: center;
+  border:1px solid rgba(0,255,255,0.35);
+  box-shadow:
+    0 0 20px rgba(0,255,255,0.35),
+    inset 0 0 60px rgba(0,255,255,0.15);
+}
+.hero h1{
+  text-align:center;
+  font-size:30px;
+  margin-bottom:8px;
+  background:linear-gradient(90deg,#cfffff,#00ffff);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  text-shadow:
+    0 0 12px rgba(0,255,255,0.6),
+    0 0 25px rgba(0,255,255,0.35);
+}
+.hero-logo{
+  display:flex;
+  justify-content:center;
+  margin-bottom:10px;
+}
+
+.hero-logo i{
+  font-size:52px;
+
+  /* warna cyan metal */
+  background:linear-gradient(
+    180deg,
+    #e6ffff 0%,
+    #00ffff 40%,
+    #006666 75%,
+    #003333 100%
+  );
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+
+  /* glow cyan elegan */
+  text-shadow:
+    0 0 10px rgba(0,255,255,0.6),
+    0 0 24px rgba(0,255,255,0.35);
+
+  /* bayangan biar keliatan timbul */
+  filter:drop-shadow(0 6px 10px rgba(0,0,0,0.85));
+}
+@keyframes cyanPulse{
+  0%{filter:brightness(1)}
+  50%{filter:brightness(1.15)}
+  100%{filter:brightness(1)}
+}
+
+.hero-logo i{
+  animation:cyanPulse 3s ease-in-out infinite;
+}
 </style>
 </head>
 <body>
 
 <section class="section">
   <div class="card hero">
+    <div class="hero-logo">
+<i class="fa-solid fa-microchip"></i>
+</div>
     <h1>Server Panel Pterodactyl</h1>
     <p>web panel Pterodactyl open-source untuk mengelola server menggunakan script untuk mengaktifkan bot</p>
     <button class="btn openOrder">🔥Dapatkan Produk Dan Lihat Harga</button>
@@ -213,7 +280,9 @@ body{margin:0;font-family:system-ui,-apple-system,sans-serif;background:radial-g
 <!-- MODAL ORDER -->
 <div class="order-modal" id="orderModal">
   <div class="order-card">
-        <div class="order-icon">🌐</div>
+    <div class="hero-logo">
+<i class="fa-solid fa-microchip"></i>
+</div>
     <h2>Order Panel 𝕻𝖗𝖊𝖙𝖞𝕱𝖃</h2>
     <a href="https://t.me/alwysprtyfx" target="_blank" class="order-item">
       Telegram 𝕻𝖗𝖊𝖙𝖞𝕱𝖃 <span class="arrow">→</span>
