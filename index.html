@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Worm-GPT UI - Glow Cyan + Smooth Zoom Pan</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,sans-serif;background:radial-gradient(circle at top,#003a3a,#000 45%);color:#fff;}
+.section{padding:24px 16px;display:flex;justify-content:center;}
+.card{width:360px;background:rgba(0,0,0,0.7);border-radius:22px;padding:26px 22px 30px;border:1px solid rgba(0,255,255,0.25);box-shadow:0 0 15px rgba(0,255,255,0.2);transition: box-shadow 0.3s,border 0.3s,color 0.3s;}
+.card.active{border:2px solid rgba(0,255,255,0.8);box-shadow:0 0 25px rgba(0,255,255,0.7),0 0 50px rgba(0,255,255,0.4) inset;}
+.card.active h2{color:#00ffff !important;}
+.hero h1{text-align:center;font-size:30px;margin-bottom:8px;background:linear-gradient(90deg,#9cfffb,#00ffff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero p{text-align:center;opacity:.8;}
+.product-image{position:relative;margin:22px 0;border-radius:16px;overflow:hidden;cursor:pointer;}
+.product-image img{width:100%;height:190px;object-fit:cover;}
+.card h2{text-align:center;color:#ffffff;transition: color 0.3s;}
+.btn{display:block;width:100%;padding:14px;border-radius:16px;font-weight:700;border:none;cursor:pointer;color:#fff;background:linear-gradient(135deg,#00ffff,#007a7a);box-shadow:0 0 28px rgba(0,255,255,.6);}
+#lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.95);align-items:center;justify-content:center;z-index:9999;touch-action:none;overflow:hidden;}
+#lightbox img{max-width:90%;max-height:85%;border-radius:14px;transition: transform 0.2s;cursor:grab;}
+#lightbox img:active{cursor:grabbing;}
+.order-modal{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.85);
+  backdrop-filter:blur(6px);
+  z-index:9999;
+  align-items:center;
+  justify-content:center;
+}
+
+.order-card{
+  width:340px;
+  background:linear-gradient(180deg,#0c0f18,#050608);
+  border-radius:22px;
+  padding:26px 22px;
+  border:1px solid rgba(0,255,255,.4);
+  box-shadow:0 0 35px rgba(0,255,255,.45);
+}
+
+.order-icon{
+  width:70px;
+  height:70px;
+  margin:0 auto 14px;
+  border-radius:18px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:32px;
+  background:linear-gradient(145deg,#0fffff,#140000);
+}
+
+.order-card h2{
+  text-align:center;
+  color:#0ff;
+}
+
+.order-sub{
+  text-align:center;
+  opacity:.8;
+  margin-bottom:20px;
+}
+
+.order-item{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:16px;
+  border-radius:16px;
+  margin-bottom:14px;
+  background:linear-gradient(135deg,#140000,#080000);
+  border:1px solid rgba(0,255,255,.45);
+  color:#fff;
+  text-decoration:none;
+}
+
+.arrow{color:#00ffff}
+
+.close-btn{
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:16px;
+  background:#121826;
+  color:#fff;
+  font-weight:700;
+  cursor:pointer;
+  margin-top: 12px;
+}
+.price-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(6px);z-index:10000;align-items:center;justify-content:center;}
+.price-card{width:300px;background:linear-gradient(180deg,#0c0f18,#050608);border-radius:20px;padding:22px;border:1px solid rgba(0,255,255,.4);box-shadow:0 0 25px rgba(0,255,255,.45);}
+.price-card h2{text-align:center;color:#0ff;}
+#priceContent{
+  max-height:400px;
+  overflow-y:auto;
+  background:rgba(0,0,0,0.55);
+  border-radius:14px;
+  padding:14px;
+  color:#fff;
+  font-size:14px;
+}
+.openPrice{
+  display:block;
+  width:100%;
+  padding:12px;
+  margin-top:10px;
+  border-radius:12px;
+  border:none;
+  background:#222;      /* gelap */
+  color:#0fffff;           /* teks cyan */
+  font-weight:700;
+  cursor:pointer;
+}
+.price-list{
+  padding-left:18px;
+  margin:8px 0 10px;
+}
+
+.price-list li{
+  margin-bottom:6px;
+  list-style: none;
+  position: relative;
+}
+
+.price-list li::before{
+  content:"•";
+  color:#00ffff;
+  position:absolute;
+  left:-12px;
+}
+
+.price-tag{
+  margin-top:6px;
+  color:#00ffff;
+  font-weight:700;
+}
+
+.divider{
+  border:none;
+  height:1px;
+  background:linear-gradient(90deg,transparent,#00ffff,transparent);
+  margin:14px 0;
+}
+</style>
+</head>
+<body>
+
+<section class="section">
+  <div class="card hero">
+    <h1>Server Panel Pterodactyl</h1>
+    <p>web panel Pterodactyl open-source untuk mengelola server menggunakan script untuk mengaktifkan bot</p>
+    <button class="btn openOrder">🔥Dapatkan Produk Dan Lihat Harga</button>
+  </div>
+</section>
+
+<section class="section">
+  <div class="card">
+    <h2>Tampilan Login Panel</h2>
+    <div class="product-image"><img src="https://raw.githubusercontent.com/PretyFX69/music-files2/refs/heads/main/Screenshot_20251228-122343.jpg"></div>
+        <p style="text-align:center;opacity:.8">
+      Secure Pterodactyl Login Panel dengan autentikasi kuat dan desain ramah pengguna untuk akses sistem server yang aman.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="card">
+    <h2>Tampilan Control Admin Panel</h2>
+    <div class="product-image"><img src="https://raw.githubusercontent.com/PretyFX69/music-files2/refs/heads/main/IMG_20251228_105216_850.jpg"></div>
+        <p style="text-align:center;opacity:.8">
+      kontrol utama yang digunakan administrator untuk mengelola server bot, VPS, user, resource, dan keamanan dalam satu dashboard berbasis web.
+    </p>
+  </div>
+</section>
+<section class="section">
+  <div class="card">
+    <h2>Console Pterodactyl</h2>
+    <div class="product-image"><img src="https://raw.githubusercontent.com/PretyFX69/music-files2/refs/heads/main/IMG-20251228-WA0000.jpg"></div>
+            <p style="text-align:center;opacity:.8">
+      console Pterodactyl dengan respons real-time, log live, dan tampilan profesional untuk manajemen server tanpa delay.
+    </p>
+  </div>
+</section>
+<section class="section">
+  <div class="card">
+    <h2>File Management</h2>
+    <div class="product-image"><img src="https://raw.githubusercontent.com/PretyFX69/music-files2/refs/heads/main/Screenshot_20251228-131116.jpg"></div>
+                <p style="text-align:center;opacity:.8">
+      File Management Interface menghadirkan kontrol file fleksibel dan desain modern, mendukung pengelolaan server yang stabil dan terorganisir.
+    </p>
+  </div>
+</section>
+<section class="section">
+  <div class="card">
+    <h2>Create User & Servers</h2>
+    <div class="product-image"><img src="https://raw.githubusercontent.com/PretyFX69/music-files2/refs/heads/main/Screenshot_20251228-122702.jpg"></div>
+                <p style="text-align:center;opacity:.8">
+      Create Server Pterodactyl dirancang untuk deploy server secara terstruktur, dengan pengaturan resource dan environment yang aman
+    </p>
+  </div>
+</section>
+<section class="section">
+  <div class="card">
+    <h2>Alocated Disk Space</h2>
+    <div class="product-image"><img src="https://raw.githubusercontent.com/PretyFX69/music-files2/refs/heads/main/Screenshot_20251228-122525.jpg"></div>
+                <p style="text-align:center;opacity:.8">
+      At-a-Glance Pterodactyl memberikan overview cepat performa server, memudahkan pemantauan kondisi sistem secara instan.
+    </p>
+  </div>
+</section>
+<!-- MODAL ORDER -->
+<div class="order-modal" id="orderModal">
+  <div class="order-card">
+        <div class="order-icon">🌐</div>
+    <h2>Order Panel 𝕻𝖗𝖊𝖙𝖞𝕱𝖃</h2>
+    <a href="https://t.me/alwysprtyfx" target="_blank" class="order-item">
+      Telegram 𝕻𝖗𝖊𝖙𝖞𝕱𝖃 <span class="arrow">→</span>
+    </a>
+    <a href="https://wa.me/6285700711112" target="_blank" class="order-item">
+      WhatsApp 𝕻𝖗𝖊𝖙𝖞𝕱𝖃 <span class="arrow">→</span>
+    </a>
+
+    <!-- Tombol untuk memunculkan modal harga -->
+<button class="openPrice">Lihat Harga</button>
+
+    <button class="close-btn" id="closeOrder">Close</button>
+  </div>
+</div>
+
+<!-- MODAL HARGA -->
+<!-- MODAL HARGA -->
+<div class="price-modal" id="priceModal">
+  <div class="price-card">
+    <h2>List Harga Panel</h2>
+
+    <div id="priceContent">
+
+      <h3 style="color:#00ffff;margin:0 0 6px">Panel Biasa</h3>
+      <ul class="price-list">
+        <li>Ram 1GB CPU 30% : Rp 1.000</li>
+        <li>Ram 2GB CPU 90% : Rp 2.000</li>
+        <li>Ram 3GB CPU 120% : Rp 3.000</li>
+        <li>Ram 4GB CPU 180% : Rp 4.000</li>
+        <li>Ram 5GB CPU 240% : Rp 5.000</li>
+        <li>Ram 6GB CPU 300% : Rp 6.000</li>
+        <li>Ram Unli CPU Unli : Rp 7.000</li>
+        </ul>
+
+<p style="opacity:.85;font-size:14px;line-height:1.5; font-weight:700">Keuntungan panel biasa:
+</p>
+
+<p style="font-size:13px;opacity:.7;line-height:1.5;margin-top:-10px">
+  • Panel aktif selama 1 minggu jika hoki <br>
+  • Memakai VPS legal<br>
+  • Spesifikasi VPS Ram 8 GB Core 4 <br>
+  • Node.js Sampai 1-24<br>
+  • Garansi berlaku Selama 5 hari
+</p>
+      <hr class="divider">
+
+      <h3 style="color:#00ffff;margin:0 0 6px">Panel Premium</h3>
+      <ul class="price-list">
+        <li>Ram 1GB CPU 30% : Rp 2.000</li>
+        <li>Ram 2GB CPU 90% : Rp 3.000</li>
+        <li>Ram 3GB CPU 120% : Rp 4.000</li>
+        <li>Ram 4GB CPU 180% : Rp 5.000</li>
+        <li>Ram 5GB CPU 240% : Rp 6.000</li>
+        <li>Ram 6GB CPU 300% : Rp 7.000</li>
+        <li>Ram Unli CPU Unli : Rp 10.000</li>
+        </ul>
+
+<p style="opacity:.85;font-size:14px;line-height:1.5; font-weight:700">Keuntungan panel premium:
+</p>
+
+<p style="font-size:13px;opacity:.7;line-height:1.5;margin-top:-10px">
+  • Panel aktif selama 1 bulan penuh<br>
+  • Memakai VPS legal<br>
+  • Spesifikasi VPS Ram 16 GB Core 8 <br>
+  • Node.js Sampai 1-24<br>
+  • Panel bersifat privat<br>
+  • Server tidak gampang mokad<br>
+  • SC anti dicuri Orang 100% Aman<br>
+  • Garansi berlaku Selama 1 minggu
+</p>
+      <hr class="divider">
+
+      <h3 style="color:#00ffff;margin:0 0 6px">Resseler Panel</h3>
+      <ul class="price-list">
+        <li>Resseler Panel 1 Bulan : Rp 8.000</li>
+      <li>Admin Panel Permanent : Rp 13.000</li>
+        </ul>
+
+<p style="opacity:.85;font-size:14px;line-height:1.5; font-weight:700">Keuntungan Admin Panel:
+</p>
+
+<p style="font-size:13px;opacity:.7;line-height:1.5;margin-top:-10px">
+  • Buat Server Panel max 3 kali sehari<br>
+  • Bisa Open Panel<br>
+  • Panel Dibuat Menggunakan bot<br>
+  • Auto Jadi Kang Panel<br>
+  • Memakai VPS legal<br>
+  • Spesifikasi VPS Ram 8 GB Core 4<br>
+  • Node.js Sampai 1-24
+</p>
+      <hr class="divider">
+
+      <h3 style="color:#00ffff;margin:0 0 6px">Admin Panel</h3>
+      <ul class="price-list">
+        <li>Admin Panel 1 Bulan : Rp 15.000</li>
+      <li>Admin Panel Permanent : Rp 25.000</li>
+        </ul>
+
+<p style="opacity:.85;font-size:14px;line-height:1.5; font-weight:700">Keuntungan Admin Panel:
+</p>
+
+<p style="font-size:13px;opacity:.7;line-height:1.5;margin-top:-10px">
+  • Bisa Buat Server Panel Sepuasnya<br>
+  • Bisa Open Panel<br>
+  • Bisa Open Resseler Panel<br>
+  • Membuat Panel Dengan Server<br>
+  • Auto Jadi Kang Panel<br>
+  • Memakai VPS legal<br>
+  • Spesifikasi VPS Ram 16 GB Core 8<br>
+  • Node.js Sampai 1-24<br>
+  • API bot gratis dari server<br>
+  • Control Admin Terhadap Server panel
+</p>
+</div>
+<!-- #priceContent -->
+    <button class="close-btn" id="closePrice">Close</button>
+  </div>
+</div>
+<div id="lightbox"><img id="lightboxImg"></div>
+<p style="width:350px; text-align:center;"> &copy; 2025 Development Cyberzain. All right reserved</p> 
+<script>
+let currentScale = 1, translateX = 0, translateY = 0;
+let startX = 0, startY = 0, initialDistance = 0;
+let isDragging = false;
+let cardActive = null;
+
+const productImages = document.querySelectorAll('.product-image');
+const lightbox = document.getElementById("lightbox");
+const lightboxImg = document.getElementById("lightboxImg");
+
+function getDistance(touches) {
+  const [t1, t2] = touches;
+  return Math.hypot(t2.pageX - t1.pageX, t2.pageY - t1.pageY);
+}
+
+function updateTransform() {
+  lightboxImg.style.transform = `translate(${translateX}px,${translateY}px) scale(${currentScale})`;
+}
+
+function smoothDrag(x, y){
+  translateX = x;
+  translateY = y;
+  requestAnimationFrame(updateTransform);
+}
+
+function startDrag(e){
+  isDragging = true;
+  if(e.type==='mousedown'){
+    startX = e.clientX - translateX;
+    startY = e.clientY - translateY;
+    document.onmousemove = drag;
+    document.onmouseup = endDrag;
+  } else if(e.type==='touchstart'){
+    startX = e.touches[0].clientX - translateX;
+    startY = e.touches[0].clientY - translateY;
+    document.ontouchmove = drag;
+    document.ontouchend = endDrag;
+  }
+}
+
+function drag(e){
+  if(!isDragging) return;
+  let x = (e.clientX || e.touches[0].clientX) - startX;
+  let y = (e.clientY || e.touches[0].clientY) - startY;
+  smoothDrag(x, y);
+}
+
+function endDrag(){
+  isDragging = false;
+  document.onmousemove = null;
+  document.onmouseup = null;
+  document.ontouchmove = null;
+  document.ontouchend = null;
+}
+
+productImages.forEach(imgDiv=>{
+  imgDiv.addEventListener('click', e=>{
+    const card = imgDiv.closest('.card');
+    card.classList.add('active');
+    cardActive = card;
+
+    lightboxImg.src = imgDiv.querySelector('img').src;
+    currentScale = 1; translateX = 0; translateY = 0;
+    updateTransform();
+    lightbox.style.display = 'flex';
+
+    // scroll zoom desktop
+    lightboxImg.onwheel = ev=>{
+      ev.preventDefault();
+      currentScale += ev.deltaY<0?0.1:-0.1;
+      currentScale=Math.min(Math.max(1,currentScale),3);
+      updateTransform();
+    };
+
+    // pinch zoom mobile & drag
+    lightboxImg.ontouchstart = ev=>{
+      if(ev.touches.length===2){
+        initialDistance = getDistance(ev.touches);
+      } else if(ev.touches.length===1){
+        startDrag(ev);
+      }
+    };
+    lightboxImg.ontouchmove = ev=>{
+      if(ev.touches.length===2){
+        const newDistance = getDistance(ev.touches);
+        let scaleChange = (newDistance-initialDistance)/200;
+        currentScale = Math.min(Math.max(1,currentScale+scaleChange),3);
+        updateTransform();
+        initialDistance = newDistance;
+      } else if(ev.touches.length===1){
+        drag(ev);
+      }
+    };
+    lightboxImg.ontouchend = ev=>{
+      if(ev.touches.length<2) endDrag();
+    };
+
+    lightboxImg.onmousedown = startDrag;
+    lightboxImg.ontouchstart = startDrag;
+
+    lightbox.onclick = ()=>{
+      lightbox.style.display='none';
+      setTimeout(()=>{ if(cardActive) cardActive.classList.remove('active'); cardActive=null; },1000);
+      translateX=0; translateY=0; currentScale=1;
+      updateTransform();
+    };
+  });
+});
+const modal = document.getElementById("orderModal");
+document.querySelectorAll(".openOrder").forEach(btn=>{
+  btn.onclick = (e)=>{
+    e.stopPropagation(); // cegah bubble
+    modal.style.display = "flex";
+  };
+});
+document.getElementById("closeOrder").onclick = ()=> modal.style.display = "none";
+modal.onclick = e => { if(e.target===modal) modal.style.display = "none"; };
+const priceModal = document.getElementById("priceModal");
+const btnOpenPrice = document.querySelector(".openPrice");
+const btnClosePrice = document.getElementById("closePrice");
+btnOpenPrice.onclick = ()=> priceModal.style.display="flex";
+btnClosePrice.onclick = ()=> priceModal.style.display="none";
+priceModal.onclick = e=>{ if(e.target===priceModal) priceModal.style.display="none"; };
+</script>
+
+</body>
+</html>
